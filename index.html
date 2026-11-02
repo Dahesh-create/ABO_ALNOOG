@@ -1,17 +1,15 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Abo Al'Noog Natural Soap - صابون أبو النوج</title>
-    <!-- أيقونة التبويب للمتصفح (Favicon) مطابقة لامتداد logo.jpg -->
+    <!-- أيقونة التبويب للمتصفح -->
     <link rel="icon" type="image/jpeg" href="logo.jpg">
 
-    <!-- استدعاء خط Cairo العربي -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- مكتبة أيقونات FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -252,7 +250,7 @@
         .feature-box h4 { font-size: 18px; margin-bottom: 8px; color: var(--text-dark); }
         .feature-box p { font-size: 14px; color: #666; }
 
-        /* --- لوحة تحكم الأدمن المدمجة --- */
+        /* --- لوحة تحكم الأدمن (مخفية افتراضياً ولا تظهر إلا بتسجيل الدخول) --- */
         .admin-section {
             max-width: 1200px;
             margin: 60px auto;
@@ -260,6 +258,10 @@
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            display: none; /* مخفية عن العميل تماماً */
+        }
+        .admin-section.open {
+            display: block;
         }
         .admin-section h2 { color: var(--primary-green); margin-bottom: 20px; border-bottom: 2px solid var(--bg-light); padding-bottom: 10px; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
@@ -314,7 +316,7 @@
     <!-- الشريط العلوي -->
     <header>
         <div class="navbar">
-            <div class="logo-area">
+            <div class="logo-area" id="adminLoginTrigger" title="اضغط 3 مرات لتسجيل دخول الأدمن">
                 <img src="logo.jpg" alt="شعار صابون أبو النوج" class="site-logo" onerror="this.style.display='none'">
                 <h1>Abo Al'Noog <span>Natural Soap</span></h1>
             </div>
@@ -325,7 +327,6 @@
                     <li><a href="#skin">العناية بالبشرة</a></li>
                     <li><a href="#body">العناية بالجسم</a></li>
                     <li><a href="#hair">العناية بالشعر</a></li>
-                    <li><a href="#adminArea">لوحة التحكم</a></li>
                 </ul>
             </nav>
             <div class="nav-icons">
@@ -379,9 +380,12 @@
         </div>
     </section>
 
-    <!-- لوحة تحكم الأدمن المدمج -->
+    <!-- لوحة تحكم الأدمن (مخفية تماماً ولا تفتح إلا باليوزر والباسورد) -->
     <section class="admin-section" id="adminArea">
-        <h2>لوحة التحكم الإدارية (تعديل مباشر على الموقع)</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--bg-light); padding-bottom: 10px; margin-bottom: 20px;">
+            <h2 style="margin: 0; border: none; padding: 0;">لوحة التحكم الإدارية (خاص بالأدمن)</h2>
+            <button class="btn-danger" id="logoutAdminBtn" style="padding: 5px 15px;">تسجيل خروج الأدمن</button>
+        </div>
         
         <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
             <h3 id="formTitle" style="color: var(--primary-green); margin-bottom: 15px;">إضافة منتج جديد</h3>
@@ -440,6 +444,26 @@
         </table>
     </section>
 
+    <!-- نافذة تسجيل دخول الأدمن -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box">
+            <button type="button" class="close-modal" id="closeLogin">&times;</button>
+            <h3 style="color: var(--primary-green); margin-bottom: 15px;">تسجيل دخول الأدمن</h3>
+            <form id="loginForm">
+                <div class="form-group" style="margin-bottom: 12px; text-align: right;">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="authUser" placeholder="أدخل اسم المستخدم" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 15px; text-align: right;">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="authPass" placeholder="أدخل كلمة المرور" required>
+                </div>
+                <p id="loginError" style="color: var(--danger); font-size: 13px; margin-bottom: 10px; display: none;">بيانات الدخول غير صحيحة!</p>
+                <button type="submit" class="btn-main" style="width: 100%; border-radius: 6px;">دخول</button>
+            </form>
+        </div>
+    </div>
+
     <!-- نافذة التفاصيل -->
     <div class="modal-overlay" id="detailsModal">
         <div class="modal-box">
@@ -471,7 +495,7 @@
         <p class="copyright">&copy; 2026 صابون أبو النوج الطبيعي. جميع الحقوق محفوظة.</p>
     </footer>
 
-    <!-- سكربت البرمجة والربط اللحظي بـ Firebase -->
+    <!-- سكربت البرمجة والحماية -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -520,6 +544,51 @@
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 2500);
         }
+
+        // --- نظام حماية ودخول الأدمن (ضغط 3 مرات على اللوجو) ---
+        let logoClicks = 0;
+        let clickTimer;
+        const adminLoginTrigger = document.getElementById('adminLoginTrigger');
+        const loginModal = document.getElementById('loginModal');
+        const adminArea = document.getElementById('adminArea');
+
+        logoClicks = 0;
+        adminLoginTrigger.addEventListener('click', () => {
+            logoClicks++;
+            clearTimeout(clickTimer);
+            if (logoClicks >= 3) {
+                logoClicks = 0;
+                loginModal.classList.add('open');
+            } else {
+                clickTimer = setTimeout(() => { logoClicks = 0; }, 1000);
+            }
+        });
+
+        document.getElementById('closeLogin').onclick = () => loginModal.classList.remove('open');
+
+        document.getElementById('loginForm').onsubmit = (e) => {
+            e.preventDefault();
+            const u = document.getElementById('authUser').value;
+            const p = document.getElementById('authPass').value;
+            const err = document.getElementById('loginError');
+
+            if (u === 'noga' && p === 'noga2005') {
+                err.style.display = 'none';
+                loginModal.classList.remove('open');
+                adminArea.classList.add('open');
+                adminArea.scrollIntoView({ behavior: 'smooth' });
+                showToast("مرحباً بك يا أدمن، تم تفعيل لوحة التحكم بنجاح!");
+                document.getElementById('loginForm').reset();
+            } else {
+                err.style.display = 'block';
+            }
+        };
+
+        document.getElementById('logoutAdminBtn').onclick = () => {
+            adminArea.classList.remove('open');
+            showToast("تم تسجيل خروج الأدمن وإخفاء لوحة التحكم");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
 
         function createMedia(p, extraClass) {
             const icon = (SECTIONS[p.section] || SECTIONS.best).icon;
@@ -700,7 +769,7 @@
         document.getElementById('contactForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             await setDoc(doc(db, "settings", "contact"), {
-                whatsapp: document.getElementById('cWhatsapp0' || 'cWhatsapp').value || document.getElementById('cWhatsapp').value,
+                whatsapp: document.getElementById('cWhatsapp').value,
                 facebook: document.getElementById('cFacebook').value,
                 instagram: document.getElementById('cInstagram').value
             });
