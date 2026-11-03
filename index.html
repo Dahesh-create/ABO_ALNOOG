@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Abo Al'Noog Natural Soap - صابون أبو النوج</title>
-    <!-- أيقونة التبويب للمتصفح مطابقة لامتداد logo.jpg -->
     <link rel="icon" type="image/jpeg" href="logo.jpg">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -212,9 +211,8 @@
                 </div>
                 <div class="form-group" style="margin-bottom: 15px;"><label>الوصف</label><textarea id="pDesc"></textarea></div>
                 <div class="form-group" style="margin-bottom: 15px;">
-                    <label>صورة المنتج (اختر ملف صورة أو ضع رابط مباشر)</label>
-                    <input type="file" id="pImageFile" accept="image/*" style="margin-bottom: 5px;">
-                    <input type="url" id="pImageURL" placeholder="أو رابط الصورة هنا">
+                    <label>رابط صورة المنتج (رابط مباشر للصورة)</label>
+                    <input type="url" id="pImageURL" placeholder="https://example.com/soap.jpg" required>
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <button type="submit" class="btn-main" style="padding: 10px 20px; border-radius:6px;">حفظ المنتج</button>
@@ -300,11 +298,10 @@
         <p class="copyright">&copy; 2026 صابون أبو النوج الطبيعي. جميع الحقوق محفوظة.</p>
     </footer>
 
-    <!-- السكربت والربط الشامل بـ Firebase -->
+    <!-- السكربت والاتصال بـ Firestore فقط -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDny6-gB_EOL51HyH9Yawa2ZmnaEkgyoLE",
@@ -318,7 +315,6 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const storage = getStorage(app);
 
         const bubblesContainer = document.getElementById('bubblesContainer');
         for (let i = 0; i < 20; i++) {
@@ -522,15 +518,7 @@
                 const price = document.getElementById('pPrice').value;
                 const section = document.getElementById('pSection').value;
                 const desc = document.getElementById('pDesc').value;
-                const fileInput = document.getElementById('pImageFile');
-                let imgUrl = document.getElementById('pImageURL').value;
-
-                if (fileInput.files.length > 0) {
-                    const file = fileInput.files[0];
-                    const storageRef = ref(storage, `products/${id}_${file.name}`);
-                    await uploadBytes(storageRef, file);
-                    imgUrl = await getDownloadURL(storageRef);
-                }
+                const imgUrl = document.getElementById('pImageURL').value;
 
                 await setDoc(doc(db, "products", id), { name, price, section, desc, img: imgUrl });
                 showToast("تم الحفظ بنجاح!");
